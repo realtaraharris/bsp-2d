@@ -16,7 +16,7 @@ root
   .cut([50,25, 75,50], 'R')
   .cut([75,50, 50,75], 'R');
 
-render('R');
+render('R'); // try 'L', 'R', or '-'
 
 function drawPoly (ctx, polygon) {
   ctx.beginPath();
@@ -43,10 +43,10 @@ function render (side) {
 
   function renderIterator (context, currentDepth, branch, parent) {
     if (!context) return;
-    // am I on the left side and without children? render me!
+
+    // we only ever want to render leaves
     if (!context.leftChild && !context.rightChild ) {
       if (context.data && context.data.geometry && context.data.geometry.length > 0) {
-        // are we the left child?
         switch (side) {
           case 'L':
             if (parent.leftChild === context) {
