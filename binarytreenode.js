@@ -43,27 +43,27 @@ BinaryTreeNode.prototype.cut = function (plane, side) {
   else if ((geo.left.length > 0) && (geo.right.length === 0)) {
     this.leftChild.cut(plane);
   }
-}
+};
 
 BinaryTreeNode.prototype.isLeaf = function () {
   return null === this.leftChild && null === this.rightChild;
 };
 
-BinaryTreeNode.prototype.traverse = function (callback, currentDepth, branch, parent, done) {
-  callback(this, currentDepth, branch, parent);
+BinaryTreeNode.prototype.traverse = function (renderIterator, parent, currentDepth, branch, renderCompleted) {
+  renderIterator(this, parent, currentDepth, branch);
 
   currentDepth++; // important to do this before recursing into either child
 
   if (this.leftChild) {
-    this.leftChild.traverse(callback, currentDepth, 'L', this);
+    this.leftChild.traverse(renderIterator, this, currentDepth, 'L' );
   }
 
   if (this.rightChild) {
-    this.rightChild.traverse(callback, currentDepth, 'R', this);
+    this.rightChild.traverse(renderIterator, this, currentDepth, 'R');
   }
 
-  if (done) {
-    done();
+  if (renderCompleted) {
+    renderCompleted();
   }
 };
 

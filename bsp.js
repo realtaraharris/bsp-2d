@@ -41,29 +41,26 @@ function drawPoly (ctx, polygon) {
 function render (side) {
   var polygons = [];
 
-  function renderIterator (context, currentDepth, branch, parent) {
+  function renderIterator (context, parent) {
     if (!context) return;
 
-    // we only ever want to render leaves
-    if (!context.leftChild && !context.rightChild ) {
-      if (context.data && context.data.geometry && context.data.geometry.length > 0) {
-        switch (side) {
-          case 'L':
-            if (parent.leftChild === context) {
-              polygons.push(context.data.geometry);
-            }
-          break;
-
-          case 'R':
-            if (parent.rightChild === context) {
-              polygons.push(context.data.geometry);
-            }
-          break;
-
-          default:
+    if (context.isLeaf()) {
+      switch (side) {
+        case 'L':
+          if (parent.leftChild === context) {
             polygons.push(context.data.geometry);
-          break;
-        }
+          }
+        break;
+
+        case 'R':
+          if (parent.rightChild === context) {
+            polygons.push(context.data.geometry);
+          }
+        break;
+
+        default:
+          polygons.push(context.data.geometry);
+        break;
       }
     }
   }
@@ -79,5 +76,5 @@ function render (side) {
     ctx.dirty();
   }
 
-  root.traverse(renderIterator, 0, '-', this, renderCompleted);
+  root.traverse(renderIterator, this,  0, '-', renderCompleted);
 }
