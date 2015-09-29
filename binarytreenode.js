@@ -36,15 +36,12 @@ BinaryTreeNode.prototype.cut = function (plane, side) {
     }
   }
 
-  // are we entirely on the left or right?
+  // are we entirely on the left or right? pass the plane down the tree
   if ((geo.left.length === 0) && (geo.right.length > 0)) {
     this.rightChild.cut(plane);
   }
   else if ((geo.left.length > 0) && (geo.right.length === 0)) {
     this.leftChild.cut(plane);
-  }
-  else {
-
   }
 }
 
@@ -52,18 +49,17 @@ BinaryTreeNode.prototype.isLeaf = function () {
   return null === this.leftChild && null === this.rightChild;
 };
 
-// TODO: get rid of parentId, use parent.id instead
-BinaryTreeNode.prototype.traverse = function (callback, currentDepth, branch, parentId, parent, done) {
-  callback(this, currentDepth, branch, parentId, parent);
+BinaryTreeNode.prototype.traverse = function (callback, currentDepth, branch, parent, done) {
+  callback(this, currentDepth, branch, parent);
 
   currentDepth++; // important to do this before recursing into either child
 
   if (this.leftChild) {
-    this.leftChild.traverse(callback, currentDepth, 'L', this.id, this);
+    this.leftChild.traverse(callback, currentDepth, 'L', this);
   }
 
   if (this.rightChild) {
-    this.rightChild.traverse(callback, currentDepth, 'R', this.id, this);
+    this.rightChild.traverse(callback, currentDepth, 'R', this);
   }
 
   if (done) {
