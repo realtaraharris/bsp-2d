@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "fc": "^1.4.3"
+  },
+  "devDependencies": {
+    "tape": "^4.2.0"
+  }
+}
