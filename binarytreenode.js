@@ -23,8 +23,7 @@ BinaryTreeNode.prototype.addRightChild = function (data) {
 BinaryTreeNode.prototype.cut = function (plane, side) {
   var geo = clip(this.data.geometry, plane);
 
-  // if we're in a terminal node, make children
-  if (!this.leftChild && !this.rightChild) {
+  if (this.isLeaf()) {
     this.addLeftChild({geometry: geo.left});
     this.addRightChild({geometry: geo.right});
 
