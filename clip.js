@@ -29,7 +29,7 @@ function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
   ]
 }
 
-function clip (poly, plane) {
+function clip (poly, cuttingPlane, nickingPlanes) {
   var left = [];
   var right = [];
 
@@ -40,7 +40,6 @@ function clip (poly, plane) {
     var currentX;
     var currentY;
 
-
     if (i === poly.length) { // handle last line segment
       currentX = poly[0][0];
       currentY = poly[0][1];
@@ -49,9 +48,9 @@ function clip (poly, plane) {
       currentX = poly[i][0];
       currentY = poly[i][1];
     }
-    var side = findSide(plane[0], plane[1], plane[2], plane[3], currentX, currentY);
+    var side = findSide(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY);
 
-    // does the current line segment intersect the plane?
+    // does the current line segment intersect the cuttingPlane?
     if (
       (lastPointSide !== 0) // we didn't hit the thing right on the head
       && (side !== 0)
@@ -62,7 +61,7 @@ function clip (poly, plane) {
       var lastX = poly[i - 1][0];
       var lastY = poly[i - 1][1];
 
-      var intersection = segline(plane[0], plane[1], plane[2], plane[3], currentX, currentY, lastX, lastY);
+      var intersection = segline(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY, lastX, lastY);
 
       if (Array.isArray(intersection)) {
         left.push([intersection[0], intersection[1]]);

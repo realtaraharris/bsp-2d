@@ -20,10 +20,23 @@ BinaryTreeNode.prototype.addRightChild = function (data) {
   return this.rightChild;
 };
 
-BinaryTreeNode.prototype.cut = function (plane, side) {
-  var geo = clip(this.data.geometry, plane);
+BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
+  var isLeaf = this.isLeaf();
 
-  if (this.isLeaf()) {
+  var nickingPlanes = [];
+  if (!isLeaf) {
+    if (this.leftChild && this.leftChild.data.plane) {
+      nickingPlanes.push(this.leftChild.data.plane);
+    }
+
+    if (this.rightChild && this.rightChild.data.plane) {
+      nickingPlanes.push(this.rightChild.data.plane);
+    }
+  }
+
+  var geo = clip(this.data.geometry, cuttingPlane, nickingPlanes);
+
+  if (isLeaf) {
     this.addLeftChild({geometry: geo.left});
     this.addRightChild({geometry: geo.right});
 
@@ -35,12 +48,12 @@ BinaryTreeNode.prototype.cut = function (plane, side) {
     }
   }
 
-  // are we entirely on the left or right? pass the plane down the tree
+  // are we entirely on the left or right? pass the cuttingPlane down the tree
   if ((geo.left.length === 0) && (geo.right.length > 0)) {
-    this.rightChild.cut(plane);
+    this.rightChild.cut(cuttingPlane);
   }
   else if ((geo.left.length > 0) && (geo.right.length === 0)) {
-    this.leftChild.cut(plane);
+    this.leftChild.cut(cuttingPlane);
   }
 };
 

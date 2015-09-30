@@ -42,9 +42,7 @@ function render (side) {
   var polygons = [];
 
   function renderIterator (context, parent) {
-    if (!context) return;
-
-    if (context.isLeaf()) {
+    if (context && context.isLeaf()) {
       switch (side) {
         case 'L':
           if (parent.leftChild === context) {
