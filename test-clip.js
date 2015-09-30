@@ -39,7 +39,7 @@ tape('check convex polygon clipper', function (t) {
   );
 
   t.deepEquals(
-    clipper([[0,0], [0,1], [1,1], [1,0]], [0.1, 0.5, 0.9, 0.5]),
+    clipper([[0,0], [0,1], [1,1], [1,0]], [-0.1, 0.5, 1.1, 0.5]),
     {
       left: [ [ 0, 0 ], [ 0, 0.5 ], [ 1, 0.5 ], [ 1, 0 ] ],
       right: [ [ 0, 0.5 ], [ 0, 1 ], [ 1, 1 ], [ 1, 0.5 ] ]
@@ -50,11 +50,30 @@ tape('check convex polygon clipper', function (t) {
   t.deepEquals(
     clipper([[0,0], [0,1], [1,1], [1,0]], [0.5, -1, 0.5, 2]),
     {
-      left: [ [ 0.5, 1 ], [ 1, 1 ], [ 1, 0 ], [ 0.5, 0 ] ],
-      right: [ [ 0, 0 ], [ 0, 1 ], [ 0.5, 1 ], [ 0.5, 0 ] ]
+      left: [ [ 0.5, 0 ], [ 0.5, 1 ], [ 1, 1 ], [ 1, 0 ] ],
+      right: [ [ 0.5, 0 ], [ 0, 0 ], [ 0, 1 ], [ 0.5, 1 ] ]
     },
     'clipped through vertical line'
   );
+
+  t.deepEquals(
+    clipper([[0,0], [0,1], [1,1], [1,0]], [0.1, 0.5, 0.9, 0.5]),
+    {
+      left: [ [ 0, 0 ], [ 0, 0.5 ], [ 1, 0.5 ], [ 1, 0 ] ],
+      right: [ [ 0, 0.5 ], [ 0, 1 ], [ 1, 1 ], [ 1, 0.5 ] ]
+    },
+    'clipped through horizontal line (defined by interior points)'
+  );
+
+  t.deepEquals(
+    clipper([[0,0], [0,1], [1,1], [1,0]], [0.5, 0.1, 0.5, 0.9]),
+    {
+      left: [ [ 0.5, 0 ], [ 0.5, 1 ], [ 1, 1 ], [ 1, 0 ] ],
+      right: [ [ 0.5, 0 ], [ 0, 0 ], [ 0, 1 ], [ 0.5, 1 ] ]
+    },
+    'clipped through vertical line (defined by interior points)'
+  );
+
 
   t.end();
 });

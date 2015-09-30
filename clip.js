@@ -23,9 +23,16 @@ function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
   }
 
   // is the intersection along the the segment?
+  var mua = numera / denom;
+  var mub = numerb / denom;
+
+  if ((mua < 0) && (mua > 1) || (mub < 0) || (mub > 1)) {
+    return;
+  }
+
   return [
-    x1 + (numera / denom) * (x2 - x1),
-    y1 + (numera / denom) * (y2 - y1)
+    x1 + (mua) * (x2 - x1),
+    y1 + (mua) * (y2 - y1)
   ]
 }
 
@@ -36,31 +43,30 @@ function clip (poly, cuttingPlane, nickingPlanes) {
   var lastPointSide;
   if (!poly || !poly[0]) return {left: undefined, right: undefined};
 
-  for (var i = 0; i < poly.length + 1; i++) {
-    var currentX;
-    var currentY;
+  // instead of trying to do circular access over the underlying array, just fake it
+  // this might not be a great idea later on, if arbitrary precision arithmetic/computer algebra or DAG is used
+  //
+  //    [1, 2, 3, 4]
+  //
+  // [4, 1, 2, 3, 4]
+  //
+  // [4, 1]
+  //    [1, 2]
+  //       [2, 3]
+  //          [3, 4]
 
-    if (i === poly.length) { // handle last line segment
-      currentX = poly[0][0];
-      currentY = poly[0][1];
-    }
-    else {
-      currentX = poly[i][0];
-      currentY = poly[i][1];
-    }
+  poly.splice(0, 0, poly[poly.length - 1]);
+
+  for (var i = 0; i < poly.length - 1; i++) {
+    var lastX = poly[i][0];
+    var lastY = poly[i][1];
+    var currentX = poly[i + 1][0];
+    var currentY = poly[i + 1][1];
+
     var side = findSide(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY);
 
     // does the current line segment intersect the cuttingPlane?
-    if (
-      (lastPointSide !== 0) // we didn't hit the thing right on the head
-      && (side !== 0)
-      && (side !== lastPointSide)
-      && (i < poly.length + 1)
-      && (i > 0)
-    ) {
-      var lastX = poly[i - 1][0];
-      var lastY = poly[i - 1][1];
-
+    if ((lastPointSide !== 0) && (side !== 0)) {
       var intersection = segline(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY, lastX, lastY);
 
       if (Array.isArray(intersection)) {
@@ -69,18 +75,15 @@ function clip (poly, cuttingPlane, nickingPlanes) {
       }
     }
 
-    // TODO: wow, this is broken
-    if ('undefined' !== typeof poly[i]) {
-      if (side < 0) {
-        left.push(poly[i]);
-      }
-      else if (side === 0) {
-        left.push(poly[i]);
-        right.push(poly[i]);
-      }
-      else {
-        right.push(poly[i]);
-      }
+    if (side < 0) {
+      left.push([currentX, currentY]);
+    }
+    else if (side === 0) {
+      left.push([currentX, currentY]);
+      right.push([currentX, currentY]);
+    }
+    else {
+      right.push([currentX, currentY]);
     }
 
     // set lastPointSide for next iteration
