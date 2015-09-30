@@ -74,6 +74,5 @@ tape('check convex polygon clipper', function (t) {
     'clipped through vertical line (defined by interior points)'
   );
 
-
   t.end();
 });
