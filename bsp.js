@@ -1,5 +1,6 @@
 var fc = require('fc');
 var btnode = require('./binarytreenode');
+var nick = require('./clip').nick;
 
 var root = new btnode({
   plane: [],
@@ -19,9 +20,19 @@ root
 render('R'); // try 'L', 'R', or '-'
 
 function drawPoly (ctx, polygon) {
-  ctx.beginPath();
-
   ctx.moveTo(polygon[0][0], polygon[0][1]);
+  for (var i = 0; i < polygon.length; i++) {
+    ctx.beginPath();
+    ctx.arc(polygon[0][0], polygon[0][1], 2, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'green';
+    ctx.closePath()
+    ctx.stroke();
+    ctx.fill();
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(polygon[0][0], polygon[0][1]);
+
   for (var i = 0; i < polygon.length; i++) {
     if (i < polygon.length - 1) {
       ctx.lineTo(polygon[i + 1][0], polygon[i + 1][1]);
@@ -46,13 +57,13 @@ function render (side) {
       switch (side) {
         case 'L':
           if (parent.leftChild === context) {
-            polygons.push(context.data.geometry);
+            polygons.push(nick(context.data.geometry, parent.rightChild.data.plane));
           }
         break;
 
         case 'R':
           if (parent.rightChild === context) {
-            polygons.push(context.data.geometry);
+            polygons.push(nick(context.data.geometry, parent.leftChild.data.plane));
           }
         break;
 

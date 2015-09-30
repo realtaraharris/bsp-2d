@@ -1,5 +1,6 @@
 var latestId = 0;
-var clip = require('./clip');
+var clip = require('./clip').clip;
+var nick = require('./clip').nick;
 
 function BinaryTreeNode (data, id) {
   this.leftChild = null;
@@ -20,25 +21,25 @@ BinaryTreeNode.prototype.addRightChild = function (data) {
   return this.rightChild;
 };
 
+// BinaryTreeNode.prototype.nick = function () {
+//   var nickingPlanes = [];
+//   if (this.isLeaf()) {
+//     if (this.leftChild && this.leftChild.data.plane) {
+//       nickingPlanes.push(this.leftChild.data.plane);
+//     }
+
+//     if (this.rightChild && this.rightChild.data.plane) {
+//       nickingPlanes.push(this.rightChild.data.plane);
+//     }
+//   }
+// }
+
 BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
-  var isLeaf = this.isLeaf();
+  var geo = clip(this.data.geometry, cuttingPlane);
 
-  var nickingPlanes = [];
-  if (!isLeaf) {
-    if (this.leftChild && this.leftChild.data.plane) {
-      nickingPlanes.push(this.leftChild.data.plane);
-    }
-
-    if (this.rightChild && this.rightChild.data.plane) {
-      nickingPlanes.push(this.rightChild.data.plane);
-    }
-  }
-
-  var geo = clip(this.data.geometry, cuttingPlane, nickingPlanes);
-
-  if (isLeaf) {
-    this.addLeftChild({geometry: geo.left});
-    this.addRightChild({geometry: geo.right});
+  if (this.isLeaf()) {
+    this.addLeftChild({geometry: geo.left, plane: cuttingPlane});
+    this.addRightChild({geometry: geo.right, plane: cuttingPlane});
 
     if (side === 'L') {
       return this.leftChild;
