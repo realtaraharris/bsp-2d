@@ -1,5 +1,5 @@
 var tape = require('tape');
-var clipper = require('./clip');
+var clipper = require('./clip').clip;
 
 tape('check convex polygon clipper', function (t) {
   t.deepEquals(
