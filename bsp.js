@@ -23,10 +23,9 @@ function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
   for (var i = 0; i < polygon.length; i++) {
     ctx.beginPath();
-    ctx.arc(polygon[i][0], polygon[i][1], 2, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'green';
+    ctx.arc(polygon[i][0], polygon[i][1], 4, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, ' + (i+1) *.15 + ')';
     ctx.closePath()
-    ctx.stroke();
     ctx.fill();
   }
 
