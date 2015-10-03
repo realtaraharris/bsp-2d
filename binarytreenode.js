@@ -2,21 +2,23 @@ var latestId = 0;
 var clip = require('./clip').clip;
 var nick = require('./clip').nick;
 
-function BinaryTreeNode (data, id) {
+function BinaryTreeNode (data, id, parent, side) {
   this.leftChild = null;
   this.rightChild = null;
+  this.parent = parent;
   this.data = data;
+  this.side = side;
   this.id = ('undefined' === typeof id) ? latestId++ : id;
 }
 
-BinaryTreeNode.prototype.addLeftChild = function (data) {
-  this.leftChild = new BinaryTreeNode(data);
+BinaryTreeNode.prototype.addLeftChild = function (data, parent) {
+  this.leftChild = new BinaryTreeNode(data, undefined, parent, 'L');
 
   return this.leftChild;
 };
 
-BinaryTreeNode.prototype.addRightChild = function (data) {
-  this.rightChild = new BinaryTreeNode(data);
+BinaryTreeNode.prototype.addRightChild = function (data, parent) {
+  this.rightChild = new BinaryTreeNode(data, undefined, parent, 'R');
 
   return this.rightChild;
 };
@@ -38,8 +40,8 @@ BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
   var geo = clip(this.data.geometry, cuttingPlane);
 
   if (this.isLeaf()) {
-    this.addLeftChild({geometry: geo.left, plane: cuttingPlane});
-    this.addRightChild({geometry: geo.right, plane: cuttingPlane});
+    this.addLeftChild({geometry: geo.left, plane: cuttingPlane}, this);
+    this.addRightChild({geometry: geo.right, plane: cuttingPlane}, this);
 
     if (side === 'L') {
       return this.leftChild;
@@ -62,17 +64,17 @@ BinaryTreeNode.prototype.isLeaf = function () {
   return null === this.leftChild && null === this.rightChild;
 };
 
-BinaryTreeNode.prototype.traverse = function (renderIterator, parent, currentDepth, branch, renderCompleted) {
-  renderIterator(this, parent, currentDepth, branch);
+BinaryTreeNode.prototype.traverse = function (renderIterator, currentDepth, branch, renderCompleted) {
+  renderIterator(this, currentDepth, branch);
 
   currentDepth++; // important to do this before recursing into either child
 
   if (this.leftChild) {
-    this.leftChild.traverse(renderIterator, this, currentDepth, 'L' );
+    this.leftChild.traverse(renderIterator, currentDepth, 'L' );
   }
 
   if (this.rightChild) {
-    this.rightChild.traverse(renderIterator, this, currentDepth, 'R');
+    this.rightChild.traverse(renderIterator, currentDepth, 'R');
   }
 
   if (renderCompleted) {

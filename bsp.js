@@ -51,7 +51,7 @@ function drawPoly (ctx, polygon) {
 function render (side) {
   var polygons = [];
 
-  function renderIterator (context, parent) {
+  function renderIterator (context) {
     if (context && context.isLeaf()) {
       switch (side) {
         case 'L':
@@ -78,11 +78,12 @@ function render (side) {
       ctx.translate(200, 200);
       for (var j = 0; j < polygons.length; j++) {
         drawPoly(ctx, polygons[j]);
+        // if (j === 2) return;
       }
     });
 
     ctx.dirty();
   }
 
-  root.traverse(renderIterator, this,  0, '-', renderCompleted);
+  root.traverse(renderIterator, 0, '-', renderCompleted);
 }
