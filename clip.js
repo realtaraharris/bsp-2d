@@ -6,6 +6,12 @@ var EPS = 0.000001;
 
 function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
   var denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+
+  // never return NaN
+  if ((denom === 0) || isNaN(denom)) {
+    return;
+  }
+
   var numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
   var numerb = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
 
@@ -49,8 +55,7 @@ function nick (poly, nickingPlanes) {
     var intersection = segline(nickingPlanes[0], nickingPlanes[1], nickingPlanes[2], nickingPlanes[3], currentX, currentY, lastX, lastY);
 
     if (Array.isArray(intersection)) {
-      result.push([intersection[0], intersection[1]]);
-      result.push([intersection[0], intersection[1]]);
+      result.push([intersection[0], intersection[1], 'nicked']);
     }
     result.push([currentX, currentY]);
   }
