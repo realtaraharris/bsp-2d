@@ -55,14 +55,18 @@ function render (side) {
     if (context && context.isLeaf()) {
       switch (side) {
         case 'L':
-          if (parent.leftChild === context) {
-            polygons.push(nick(context.data.geometry, parent.rightChild.data.plane));
+          if (context.side === 'L') {
+            var relative = context.parent.rightChild.rightChild;
+            var cuttingPlane = relative ? relative.data.plane : [];
+            polygons.push(nick(context.data.geometry, cuttingPlane));
           }
         break;
 
         case 'R':
-          if (parent.rightChild === context) {
-            polygons.push(nick(context.data.geometry, parent.leftChild.data.plane));
+          if (context.side === 'R') {
+            var relative = context.parent.leftChild.leftChild;
+            var cuttingPlane = relative ? relative.data.plane : [];
+            polygons.push(nick(context.data.geometry, cuttingPlane));
           }
         break;
 
