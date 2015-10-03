@@ -40,20 +40,20 @@ function nick (poly, nickingPlanes) {
   poly.splice(0, 0, poly[poly.length - 1]);
 
   var result = [];
-    for (var x = 0; x < poly.length - 1; x++) {
-      var lastX = poly[x][0];
-      var lastY = poly[x][1];
-      var currentX = poly[x + 1][0];
-      var currentY = poly[x + 1][1];
+  for (var x = 0; x < poly.length - 1; x++) {
+    var lastX = poly[x][0];
+    var lastY = poly[x][1];
+    var currentX = poly[x + 1][0];
+    var currentY = poly[x + 1][1];
 
-      var intersection = segline(nickingPlanes[0], nickingPlanes[1], nickingPlanes[2], nickingPlanes[3], currentX, currentY, lastX, lastY);
+    var intersection = segline(nickingPlanes[0], nickingPlanes[1], nickingPlanes[2], nickingPlanes[3], currentX, currentY, lastX, lastY);
 
-      if (Array.isArray(intersection)) {
-        result.push([intersection[0], intersection[1]]);
-        result.push([intersection[0], intersection[1]]);
-      }
-      result.push([currentX, currentY]);
+    if (Array.isArray(intersection)) {
+      result.push([intersection[0], intersection[1]]);
+      result.push([intersection[0], intersection[1]]);
     }
+    result.push([currentX, currentY]);
+  }
 
   return result;
 }
