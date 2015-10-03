@@ -82,7 +82,6 @@ function render (side) {
       ctx.translate(200, 200);
       for (var j = 0; j < polygons.length; j++) {
         drawPoly(ctx, polygons[j]);
-        // if (j === 2) return;
       }
     });
 
