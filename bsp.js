@@ -2,45 +2,52 @@ var fc = require('fc');
 var btnode = require('./binarytreenode');
 var arc = require('subdivide-arc');
 
-var root = new btnode({
-  plane: [],
-  geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
-});
+var root = new btnode(
+  {
+    plane: [],
+    geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
+  },
+  0, this, '-'
+);
 
-var current = root
-  // .cut([0,0, 0,100], 'L')
-  // .cut([0,100, 100,100], 'L')
-  // .cut([100,100, 100,0], 'L')
-  // .cut([100,0, 0,0], 'L')
-  // .cut([50,75, 25,50], 'R')
-  // .cut([25,50, 50,25], 'R')
-  // .cut([50,25, 75,50], 'R')
-  // .cut([75,50, 50,75], 'R');
+//circle(root, 60);
+diamondHole(root);
 
-var count = 10;
-var arcpoints = arc(50, 50, 90, 0, Math.PI*2, count)
-var currentPoint = arcpoints[0]
-for (var i=1; i<count; i++) {
-  var nextPoint = arcpoints[i];
-  current = current.cut([
-    currentPoint[0],
-    currentPoint[1],
-    nextPoint[0],
-    nextPoint[1]
-  ], '-')
-  currentPoint = nextPoint;
+function diamondHole (tree) {
+  tree
+    .cut([0,0, 0,100], 'L')
+    .cut([0,100, 100,100], 'L')
+    .cut([100,100, 100,0], 'L')
+    .cut([100,0, 0,0], 'L')
+    .cut([50,75, 25,50], 'R')
+    .cut([25,50, 50,25], 'R')
+    .cut([50,25, 75,50], 'R')
+    .cut([75,50, 50,75], 'R');
 }
 
-render('-'); // try 'L', 'R', or '-'
+function circle (tree, count) {
+  var arcpoints = arc(50, 50, 90, 0, Math.PI*2, count)
+  var currentPoint = arcpoints[0]
+  for (var i = 1; i < count; i++) {
+    var nextPoint = arcpoints[i];
+    tree = tree.cut([
+      currentPoint[0],
+      currentPoint[1],
+      nextPoint[0],
+      nextPoint[1]
+    ], 'R')
+    currentPoint = nextPoint;
   }
 }
+
+render('L'); // try 'L', 'R', or '-'
 
 function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
   for (var i = 0; i < polygon.length; i++) {
     ctx.beginPath();
     ctx.arc(polygon[i][0], polygon[i][1], 1, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, ' + (i+1) *.15 + ')';
+    ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, ' + (i+1) *0.15 + ')';
     ctx.closePath()
     ctx.fill();
   }
@@ -48,9 +55,9 @@ function drawPoly (ctx, polygon) {
   ctx.beginPath();
   ctx.moveTo(polygon[0][0], polygon[0][1]);
 
-  for (var i = 0; i < polygon.length; i++) {
-    if (i < polygon.length - 1) {
-      ctx.lineTo(polygon[i + 1][0], polygon[i + 1][1]);
+  for (var k = 0; k < polygon.length; k++) {
+    if (k < polygon.length - 1) {
+      ctx.lineTo(polygon[k + 1][0], polygon[k + 1][1]);
     }
   }
   ctx.closePath();
