@@ -73,13 +73,13 @@ BinaryTreeNode.prototype.traverse = function (renderIterator, currentDepth, bran
 
   currentDepth++; // important to do this before recursing into either child
 
-  if (this.leftChild) {
-    this.leftChild.traverse(renderIterator, currentDepth, 'L' );
-  }
   if (this.rightChild) {
     this.rightChild.traverse(renderIterator, currentDepth, 'R');
   }
 
+  if (this.leftChild) {
+    this.leftChild.traverse(renderIterator, currentDepth, 'L' );
+  }
 
   if (renderCompleted) {
     renderCompleted();
