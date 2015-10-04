@@ -4,6 +4,7 @@
   "repository": "https://github.com/maxharris9/bsp-2d",
   "scripts": {
     "start": "budo bsp.js --live",
+    "dev": "budo bsp.js --live --no-debug",
     "test": "tape test-*.js"
   },
   "dependencies": {
