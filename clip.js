@@ -4,6 +4,8 @@ var findSide = require('./find-side');
 // original: http://paulbourke.net/geometry/pointlineplane/pdb.c
 var EPS = 0.000001;
 
+// first four arguments are the line (aka plane): x1, y1, x2, y2
+// the segment is defined by the last four: x3, y3, x4, y4
 function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
   var denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
 
