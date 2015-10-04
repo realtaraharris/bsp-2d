@@ -1,10 +1,5 @@
 var fc = require('fc');
 var btnode = require('./binarytreenode');
-var nick = require('./clip').nick;
-
-var cleanPSLG = require('clean-pslg');
-var poly2pslg = require('poly-to-pslg');
-var pslg2poly = require('pslg-to-poly');
 var arc = require('subdivide-arc');
 
 var root = new btnode({
@@ -37,22 +32,7 @@ for (var i=1; i<count; i++) {
 }
 
 render('-'); // try 'L', 'R', or '-'
-//renderPslg('L'); // try 'L', 'R', or '-'
-
-function drawPslg (ctx, pslg) {
-console.log('pslg:',pslg)
-  ctx.beginPath();
-  for (var i = 0; i < pslg.edges.length; i++) {
-    var pt1 = pslg.points[pslg.edges[i][0]];
-    var pt2 = pslg.points[pslg.edges[i][1]];
-//    ctx.moveTo(pt1[0], pt1[1]);
-    ctx.lineTo(pt2[0], pt2[1]);
   }
-  ctx.fillStyle = 'rgba(200, 255, 0, 0.5)';
-  ctx.strokeStyle = 'rgba(1, 20, 0, 0.5)';
-  ctx.closePath()
-  ctx.stroke();
-  ctx.fill();
 }
 
 function drawPoly (ctx, polygon) {
@@ -131,36 +111,6 @@ console.log('relative:', relative)
         drawPoly(ctx, polygons[j]);
         //if (j === foo) return;
       }
-    });
-
-    ctx.dirty();
-  }
-
-  root.traverse(renderIterator, 0, '-', renderCompleted);
-}
-
-
-function renderPslg (side) {
-  var polygons = [];
-
-  function renderIterator (context) {
-    if (context && context.isLeaf() && (context.side === side) || (side === '-')) {
-      var cedges = context.data.edges;
-      var sedges = side
-      polygons.push(context.data.geometry);
-    }
-  }
-
-  function renderCompleted () {
-    var pslg = poly2pslg(polygons) ; // , { clean: true });
-    //polygons = pslg2poly(pslg.points, pslg.edges);
-
-    var ctx = fc(function () {
-      ctx.translate(200, 200);
-      // for (var j = 0; j < polygons.length; j++) {
-        drawPslg(ctx, pslg); // polygons[j]);
-      //   if (j === 0) return;
-      // }
     });
 
     ctx.dirty();
