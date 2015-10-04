@@ -6,11 +6,6 @@ module.exports = debung.debug(function createDebug() {
   var points = require('ctx-render-points');
   var line2 = require('line2');
   var vec2 = require('vec2');
-  var Polygon = require('polygon');
-  var cdt2d = require('cdt2d');
-  var incenter = require('triangle-centroid');
-  var voronoi = require('voronoi-diagram')
-  var seg2 = require('segment2')
 
   var width = 500;
   var overlay = document.createElement('div')
