@@ -105,9 +105,6 @@ function clip (poly, cuttingPlane) {
     // set lastPointSide for next iteration
     lastPointSide = side;
   }
-console.log('i:', i)
-console.log('n:', n)
-console.log('poly:', poly)
 
   return {
     left: left,
