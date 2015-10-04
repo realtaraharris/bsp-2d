@@ -1,5 +1,6 @@
 var fc = require('fc');
 var btnode = require('./binarytreenode');
+var debug = require('./debugger');
 var arc = require('subdivide-arc');
 
 var root = new btnode(
@@ -115,6 +116,7 @@ function render (side) {
     });
 
     ctx.dirty();
+    debug(ctx)
   }
 
   root.traverse(renderIterator, 0, '-', renderCompleted);
