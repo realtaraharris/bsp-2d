@@ -36,14 +36,11 @@ function drawPoly (ctx, polygon) {
     if (i < polygon.length - 1) {
       ctx.lineTo(polygon[i + 1][0], polygon[i + 1][1]);
     }
-    else {
-      ctx.lineTo(polygon[0][0], polygon[0][1]);
-    }
   }
   ctx.closePath();
 
   ctx.fillStyle = 'rgba(0, 0, 0, .1)';
-  ctx.strokeStyle = 'black';
+  ctx.strokeStyle = 'rgba(0, 0, 0, .1)'
   ctx.stroke();
   ctx.fill();
 }
