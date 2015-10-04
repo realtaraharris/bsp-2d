@@ -49,28 +49,8 @@ function render (side) {
   var polygons = [];
 
   function renderIterator (context) {
-    if (context && context.isLeaf()) {
-      switch (side) {
-        case 'L':
-          if (context.side === 'L') {
-            var relative = context.parent.rightChild.rightChild;
-            var cuttingPlane = relative ? relative.data.plane : [];
-            polygons.push(nick(context.data.geometry, cuttingPlane));
-          }
-        break;
-
-        case 'R':
-          if (context.side === 'R') {
-            var relative = context.parent.leftChild.leftChild;
-            var cuttingPlane = relative ? relative.data.plane : [];
-            polygons.push(nick(context.data.geometry, cuttingPlane));
-          }
-        break;
-
-        default:
-          polygons.push(context.data.geometry);
-        break;
-      }
+    if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
+      polygons.push(context.data.geometry);
     }
   }
 
