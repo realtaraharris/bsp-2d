@@ -37,6 +37,8 @@ for (var i=1; i<count; i++) {
   currentPoint = next;
 }
 
+render('R');
+
 function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
   for (var i = 0; i < polygon.length; i++) {
