@@ -65,58 +65,52 @@ function drawPoly (ctx, polygon) {
   ctx.fillStyle = 'rgba(0, 0, 0, .1)';
   ctx.strokeStyle = 'rgba(0, 0, 0, .1)'
   ctx.stroke();
-  // ctx.fill();
+  ctx.fill();
 }
 
 function render (side) {
   var polygons = [];
 
   function renderIterator (context) {
-    var relative;
-    if ((context.side === 'L') && (side === 'L')) {
-      relative = context.parent.rightChild.rightChild;
-    } else if ((context.side === 'R') && (side === 'R')) {
-      relative = context.parent.leftChild.leftChild;
+    var sibling;
+    if (context.side === 'L') {
+      sibling = context.parent.rightChild;
     }
-/*
+    else if (context.side === 'R') {
+      sibling = context.parent.leftChild;
+    }
     else {
-      console.log('meh')
-    }
-*/
-
-// console.log('---------------------')
-console.log('!!! context:', context)
-// console.log('---------------------')
-
-console.log('relative:', relative)
-    if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
-      // if (!relative) {
-      //   return console.log(context, side);
-      // }
-
-      if (relative) {
-        var cedges = context.data.edges;
-        var redges = relative.data.edges;
-        console.log('cedges, redges:', cedges, redges)
+      if (context.id === 0) {
+        console.log('root node has no sibling');
+        console.log('root node:', context)
+        sibling = context;
       }
-      // console.log(context)
-      // console.log('relative:', relative)
+      else {
+        console.error('could not find sibling');
+      }
+    }
+
+    if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
+      if (sibling) {
+        var cedges = context.data.edges;
+        var redges = sibling.data.edges;
+        console.log('cedges:', cedges);
+        console.log('redges:', redges);
+        console.log('plane:', sibling.data.plane);
+      }
 
       polygons.push(context.data.geometry);
     }
     else {
-      // console.log('fuuuuuuuu', context, side)
+      console.log('nope:', context, side);
     }
   }
 
   function renderCompleted () {
     var ctx = fc(function () {
       ctx.translate(200, 200);
-      var foo = 0;
-      //for (var j = foo; j < polygons.length; j++) {
       for (var j = 0; j < polygons.length; j++) {
         drawPoly(ctx, polygons[j]);
-        //if (j === foo) return;
       }
     });
 
