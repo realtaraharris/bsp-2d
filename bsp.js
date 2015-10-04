@@ -36,7 +36,24 @@ for (var i=1; i<count; i++) {
   currentPoint = nextPoint;
 }
 
-render('R');
+render('-'); // try 'L', 'R', or '-'
+//renderPslg('L'); // try 'L', 'R', or '-'
+
+function drawPslg (ctx, pslg) {
+console.log('pslg:',pslg)
+  ctx.beginPath();
+  for (var i = 0; i < pslg.edges.length; i++) {
+    var pt1 = pslg.points[pslg.edges[i][0]];
+    var pt2 = pslg.points[pslg.edges[i][1]];
+//    ctx.moveTo(pt1[0], pt1[1]);
+    ctx.lineTo(pt2[0], pt2[1]);
+  }
+  ctx.fillStyle = 'rgba(200, 255, 0, 0.5)';
+  ctx.strokeStyle = 'rgba(1, 20, 0, 0.5)';
+  ctx.closePath()
+  ctx.stroke();
+  ctx.fill();
+}
 
 function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
@@ -61,25 +78,89 @@ function drawPoly (ctx, polygon) {
   ctx.fillStyle = 'rgba(0, 0, 0, .1)';
   ctx.strokeStyle = 'rgba(0, 0, 0, .1)'
   ctx.stroke();
-  ctx.fill();
+  // ctx.fill();
 }
 
 function render (side) {
   var polygons = [];
 
   function renderIterator (context) {
-    if (context && context.isLeaf() && (context.side === side) || (side === '-')) {
-console.log(context.data.plane);
+    var relative;
+    if ((context.side === 'L') && (side === 'L')) {
+      relative = context.parent.rightChild.rightChild;
+    } else if ((context.side === 'R') && (side === 'R')) {
+      relative = context.parent.leftChild.leftChild;
+    }
+/*
+    else {
+      console.log('meh')
+    }
+*/
+
+// console.log('---------------------')
+console.log('!!! context:', context)
+// console.log('---------------------')
+
+console.log('relative:', relative)
+    if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
+      // if (!relative) {
+      //   return console.log(context, side);
+      // }
+
+      if (relative) {
+        var cedges = context.data.edges;
+        var redges = relative.data.edges;
+        console.log('cedges, redges:', cedges, redges)
+      }
+      // console.log(context)
+      // console.log('relative:', relative)
+
       polygons.push(context.data.geometry);
+    }
+    else {
+      // console.log('fuuuuuuuu', context, side)
     }
   }
 
   function renderCompleted () {
     var ctx = fc(function () {
       ctx.translate(200, 200);
+      var foo = 0;
+      //for (var j = foo; j < polygons.length; j++) {
       for (var j = 0; j < polygons.length; j++) {
         drawPoly(ctx, polygons[j]);
+        //if (j === foo) return;
       }
+    });
+
+    ctx.dirty();
+  }
+
+  root.traverse(renderIterator, 0, '-', renderCompleted);
+}
+
+
+function renderPslg (side) {
+  var polygons = [];
+
+  function renderIterator (context) {
+    if (context && context.isLeaf() && (context.side === side) || (side === '-')) {
+      var cedges = context.data.edges;
+      var sedges = side
+      polygons.push(context.data.geometry);
+    }
+  }
+
+  function renderCompleted () {
+    var pslg = poly2pslg(polygons) ; // , { clean: true });
+    //polygons = pslg2poly(pslg.points, pslg.edges);
+
+    var ctx = fc(function () {
+      ctx.translate(200, 200);
+      // for (var j = 0; j < polygons.length; j++) {
+        drawPslg(ctx, pslg); // polygons[j]);
+      //   if (j === 0) return;
+      // }
     });
 
     ctx.dirty();

@@ -51,6 +51,8 @@ BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
     else {
       return this.rightChild;
     }
+  } else {
+    console.error('not a leaf node!')
   }
 
   // are we entirely on the left or right? pass the cuttingPlane down the tree
@@ -74,10 +76,10 @@ BinaryTreeNode.prototype.traverse = function (renderIterator, currentDepth, bran
   if (this.leftChild) {
     this.leftChild.traverse(renderIterator, currentDepth, 'L' );
   }
-
   if (this.rightChild) {
     this.rightChild.traverse(renderIterator, currentDepth, 'R');
   }
+
 
   if (renderCompleted) {
     renderCompleted();
