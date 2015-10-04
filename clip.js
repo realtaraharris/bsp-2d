@@ -70,25 +70,12 @@ function clip (poly, cuttingPlane) {
   var lastPointSide;
   if (!poly || !poly[0]) return {left: undefined, right: undefined};
 
-  // instead of trying to do circular access over the underlying array, just fake it
-  // this might not be a great idea later on, if arbitrary precision arithmetic/computer algebra or DAG is used
-  //
-  //    [1, 2, 3, 4]
-  //
-  // [4, 1, 2, 3, 4]
-  //
-  // [4, 1]
-  //    [1, 2]
-  //       [2, 3]
-  //          [3, 4]
-
-  poly.splice(0, 0, poly[poly.length - 1]);
-
-  for (var i = 0; i < poly.length - 1; i++) {
+  for (var i = 0; i < poly.length; i++) {
     var lastX = poly[i][0];
     var lastY = poly[i][1];
-    var currentX = poly[i + 1][0];
-    var currentY = poly[i + 1][1];
+    var n = (i + 1) % poly.length;
+    var currentX = poly[n][0];
+    var currentY = poly[n][1];
 
     var side = findSide(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY);
 
