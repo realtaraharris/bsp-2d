@@ -113,10 +113,13 @@ function render (side) {
       for (var j = 0; j < polygons.length; j++) {
         drawPoly(ctx, polygons[j]);
       }
+
+      debug(ctx)
+
     });
 
     ctx.dirty();
-    debug(ctx)
+
   }
 
   root.traverse(renderIterator, 0, '-', renderCompleted);

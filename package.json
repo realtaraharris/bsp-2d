@@ -7,8 +7,10 @@
     "dev": "budo bsp.js --live --no-debug",
     "test": "tape test-*.js"
   },
-  "browserify" : {
-    "transform": ["debungify"]
+  "browserify": {
+    "transform": [
+      "debungify"
+    ]
   },
   "dependencies": {
     "clean-pslg": "^1.1.0",
@@ -18,8 +20,13 @@
   },
   "devDependencies": {
     "budo": "^5.1.0",
+    "ctx-dashed-line": "^1.0.0",
+    "ctx-render-points": "^1.0.0",
+    "ctx-render-polyline": "^1.0.1",
     "debungify": "git+https://github.com/tmpvar/debungify.git",
+    "line2": "^0.2.1",
     "subdivide-arc": "^1.0.1",
-    "tape": "^4.2.0"
+    "tape": "^4.2.0",
+    "vec2": "^1.6.0"
   }
 }
