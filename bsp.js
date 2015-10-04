@@ -2,6 +2,11 @@ var fc = require('fc');
 var btnode = require('./binarytreenode');
 var nick = require('./clip').nick;
 
+var cleanPSLG = require('clean-pslg');
+var poly2pslg = require('poly-to-pslg');
+var pslg2poly = require('pslg-to-poly');
+var arc = require('subdivide-arc');
+
 var root = new btnode({
   plane: [],
   geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
@@ -17,7 +22,20 @@ root
   .cut([50,25, 75,50], 'R')
   .cut([75,50, 50,75], 'R');
 
-render('R'); // try 'L', 'R', or '-'
+var current = root;
+var count = 5;
+var arcpoints = arc(0, 0, 10, 0, Math.PI*2, count)
+var currentPoint = arcpoints[0]
+for (var i=1; i<count; i++) {
+  var next = arcpoints[i];
+  current = current.cut([
+    currentPoint[0],
+    currentPoint[1],
+    next[0],
+    next[1]
+  ], '-')
+  currentPoint = next;
+}
 
 function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
@@ -49,7 +67,8 @@ function render (side) {
   var polygons = [];
 
   function renderIterator (context) {
-    if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
+    if (context && context.isLeaf() && (context.side === side) || (side === '-')) {
+console.log(context.data.plane);
       polygons.push(context.data.geometry);
     }
   }

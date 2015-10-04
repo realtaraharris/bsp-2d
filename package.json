@@ -7,10 +7,14 @@
     "test": "tape test-*.js"
   },
   "dependencies": {
-    "fc": "^1.4.3"
+    "clean-pslg": "^1.1.0",
+    "fc": "^1.4.3",
+    "poly-to-pslg": "^1.0.1",
+    "pslg-to-poly": "^1.0.0"
   },
   "devDependencies": {
     "budo": "^5.1.0",
+    "subdivide-arc": "^1.0.1",
     "tape": "^4.2.0"
   }
 }
