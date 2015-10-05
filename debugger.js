@@ -26,10 +26,17 @@ module.exports = debung.debug(function createDebug() {
   var stages = [];
   var stack = [];
   var halfwidth = (width/2)|0;
+
+  function fullClear(alpha) {
+    ctx.fillStyle = "rgba(255, 127, 50," + (alpha||1) + ")";
+    ctx.fillRect(0, 0, width, width)
+  }
+
+  fullClear();
+
   function render(fn) {
     ctx.save()
-      ctx.fillStyle = "orange";
-      ctx.fillRect(0, 0, width, width)
+      fullClear(0.000001)
       ctx.translate(halfwidth, halfwidth);
       fn(ctx);
     ctx.restore();
@@ -47,10 +54,17 @@ module.exports = debung.debug(function createDebug() {
   }
 
   function label(ctx, method, timed) {
-    ctx.fillStyle ='black';
     ctx.font = "12px monospace"
 
-    ctx.fillText('method: ' + method + ' (' + timed + 'ms)', -halfwidth + 10, -halfwidth + 20);
+    var text = 'method: ' + method + ' (' + (timed).toFixed(0) + 'μs)';
+    var textWidth = ctx.measureText(text).width;
+    var x = -halfwidth + 10;
+    var y = -halfwidth + 20;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(-halfwidth, -halfwidth + 30, width, -30);
+
+    ctx.fillStyle ='white';
+    ctx.fillText(text, x, y);
   }
 
   function polygonCenterOfMass(poly) {
@@ -93,7 +107,7 @@ module.exports = debung.debug(function createDebug() {
     ctx.beginPath()
       dashedLine(ctx, start, end, 5)
       ctx.lineWidth = 3;
-      ctx.strokeStyle = "grey"
+      ctx.strokeStyle = "black"
       ctx.stroke()
   }
 
@@ -112,7 +126,6 @@ module.exports = debung.debug(function createDebug() {
         switch (method) {
           case 'findSide':
             stages.push(function(ctx) {
-              label(ctx, method, d[0] - call[0]);
               var args = call[4];
 
               ctx.beginPath()
@@ -129,18 +142,15 @@ module.exports = debung.debug(function createDebug() {
                 ctx.arc(args[4], args[5], 3, 0, Math.PI*2, false);
                 ctx.fillStyle = 'white'
                 ctx.fill();
-            })
 
+              label(ctx, method, d[0] - call[0]);
+            })
           break;
 
           case 'segline':
-
             stages.push(function(ctx) {
-              label(ctx, method, d[0] - call[0]);
               var args = call[4];
               var result = d[4];
-
-              console.log(result)
 
               drawPlane(ctx, args.slice(0, 4));
 
@@ -185,31 +195,35 @@ module.exports = debung.debug(function createDebug() {
                   ctx.fillStyle = color;
                   ctx.fill();
               }
+
+              label(ctx, method, d[0] - call[0]);
             })
           break;
 
           case 'drawPoly':
             stages.push(function(ctx) {
-              label(ctx, method, d[0] - call[0]);
               var polygon = call[4][1];
 
               ctx.beginPath();
-                points(ctx, 3, polygon);
-                ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, .5)';
+                points(ctx, 1, polygon);
+                ctx.fillStyle = 'black';
                 ctx.fill();
 
+              ctx.lineWidth = 2;
               ctx.beginPath();
                 poly(ctx, polygon);
               ctx.closePath();
-              ctx.strokeStyle = "grey"
-              ctx.stroke()
+              ctx.strokeStyle = "#666"
+              ctx.fillStyle = '#E0E0E0'
+              ctx.stroke();
+              ctx.fill();
 
+              label(ctx, method, d[0] - call[0]);
             })
           break;
 
           case 'clip':
             stages.push(function(ctx) {
-              label(ctx, method, d[0] - call[0]);
               var polygon = call[4][0];
               var plane = call[4][1];
 
@@ -250,7 +264,7 @@ module.exports = debung.debug(function createDebug() {
               ctx.stroke()
 
               drawPlane(ctx, plane)
-
+              label(ctx, method, d[0] - call[0]);
             });
           break;
 
@@ -287,7 +301,11 @@ module.exports = debung.debug(function createDebug() {
 
       stage = Math.min(Math.max(stage, 0), stages.length-1)
 
-      stages[stage] && render(stages[stage])
+      fullClear();
+
+      for (var i=0; i<=stage; i++) {
+        render(stages[i])
+      }
     })
   }
 });
