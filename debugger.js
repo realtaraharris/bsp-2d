@@ -24,6 +24,8 @@ module.exports = debung.debug(function createDebug() {
 
   var ctx = c.getContext('2d');
   var stages = [];
+  var stage = window.localStorage.getItem('stage') || 0;
+
   var stack = [];
   var halfwidth = (width/2)|0;
 
@@ -109,6 +111,12 @@ module.exports = debung.debug(function createDebug() {
       ctx.lineWidth = 3;
       ctx.strokeStyle = "black"
       ctx.stroke()
+  }
+
+  function renderStage() {
+    for (var i=0; i<=stage; i++) {
+      render(stages[i])
+    }
   }
 
   return function debug(ctx) {
@@ -269,17 +277,13 @@ module.exports = debung.debug(function createDebug() {
           break;
 
           default:
-            console.log('unhandled', method)
+            // console.log('unhandled', method)
           break;
         }
-
-
-
       }
     });
 
-    var stage = 0;
-    render(stages[stage])
+    renderStage();
 
     document.addEventListener('keydown', function(e) {
       var key = e.keyCode;
@@ -298,14 +302,9 @@ module.exports = debung.debug(function createDebug() {
           console.log(key);
         break;
       }
-
-      stage = Math.min(Math.max(stage, 0), stages.length-1)
-
+      window.localStorage.setItem('stage', stage);
       fullClear();
-
-      for (var i=0; i<=stage; i++) {
-        render(stages[i])
-      }
+      renderStage();
     })
   }
 });
