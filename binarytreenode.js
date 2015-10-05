@@ -23,19 +23,6 @@ BinaryTreeNode.prototype.addRightChild = function (data, parent) {
   return this.rightChild;
 };
 
-// BinaryTreeNode.prototype.nick = function () {
-//   var nickingPlanes = [];
-//   if (this.isLeaf()) {
-//     if (this.leftChild && this.leftChild.data.plane) {
-//       nickingPlanes.push(this.leftChild.data.plane);
-//     }
-
-//     if (this.rightChild && this.rightChild.data.plane) {
-//       nickingPlanes.push(this.rightChild.data.plane);
-//     }
-//   }
-// }
-
 BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
   var geo = clip(this.data.geometry, cuttingPlane);
 
