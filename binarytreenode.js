@@ -29,8 +29,8 @@ BinaryTreeNode.prototype.cut = function (cuttingPlane, side) {
   this.data.plane = cuttingPlane;
 
   if (this.isLeaf()) {
-    this.addLeftChild({geometry: geo.left, plane: [], edges: geo.edges}, this);
-    this.addRightChild({geometry: geo.right, plane: [], edges: geo.edges}, this);
+    this.addLeftChild({geometry: geo.left, plane: [], edges: geo.edges, intersections: geo.intersections}, this);
+    this.addRightChild({geometry: geo.right, plane: [], edges: geo.edges, intersections: geo.intersections}, this);
 
     if (side === 'L') {
       return this.leftChild;

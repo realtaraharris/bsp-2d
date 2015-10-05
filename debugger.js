@@ -231,6 +231,7 @@ module.exports = debung.debug(function createDebug() {
               var result = d[4];
               var rleft = result.left;
               var rright = result.right;
+              var intersections = result.intersections;
 
               var lcenter = polygonCenterOfMass(rleft)
               var rcenter = polygonCenterOfMass(rright)
@@ -262,6 +263,20 @@ module.exports = debung.debug(function createDebug() {
               ctx.closePath();
               ctx.strokeStyle = "black"
               ctx.stroke()
+
+              ctx.beginPath();
+              for (var q = 0; q < intersections.length; q++) {
+                var x = intersections[q][0];
+                var y = intersections[q][1];
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0, Math.PI * 2, false)
+              }
+              poly(ctx, intersections)
+              ctx.lineWidth = 8
+              ctx.strokeStyle = "blue"
+              ctx.fillStyle = "skyblue"
+              ctx.stroke();
+              ctx.fill();
 
               drawPlane(ctx, plane)
               label(ctx, method, d[0] - call[0]);

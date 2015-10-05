@@ -2,16 +2,17 @@ var fc = require('fc');
 var btnode = require('./binarytreenode');
 var debug = require('./debugger');
 var arc = require('subdivide-arc');
+var findSide = require('./find-side');
 
 var root = new btnode(
   {
     plane: [],
     geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
   },
-  0, this, '-'
+  0, undefined, '-'
 );
 
-//circle(root, 60);
+  // circle(root, 10);
 diamondHole(root);
 
 function diamondHole (tree) {
@@ -71,7 +72,7 @@ function drawPoly (ctx, polygon) {
 
 function render (side) {
   var polygons = [];
-
+  var points = [];
   function renderIterator (context) {
     var sibling;
     if (context.side === 'L') {
@@ -91,13 +92,47 @@ function render (side) {
       }
     }
 
+
+var isects = context.data.intersections;
+
+
+  var p = context.parent;
+//   isects && Array.prototype.push.apply(points, isects);
+
     if (context && context.isLeaf() && ((context.side === side) || (side === '-'))) {
-      if (sibling) {
+      if (true || sibling) {
         var cedges = context.data.edges;
         var redges = sibling.data.edges;
         console.log('cedges:', cedges);
         console.log('redges:', redges);
-        console.log('plane:', sibling.data.plane);
+        // console.log('plane:', sibling.data.plane);
+
+
+  while (p) {
+    var parentIsects = p.data.intersections;
+    if (parentIsects && parentIsects.length) {
+
+      isects.forEach(function(isect) {
+        var r = findSide(
+          parentIsects[0][0],
+          parentIsects[0][1],
+          parentIsects[1][0],
+          parentIsects[1][1],
+          isect[0],
+          isect[1]
+        );
+
+        if (r === 0)  {
+          points.push(isect);
+        }
+      })
+    } else {
+      points.push(isects[0])
+    }
+    p = p.parent;
+    // break
+  }
+
       }
 
       polygons.push(context.data.geometry);
@@ -105,14 +140,18 @@ function render (side) {
     else {
       console.log('nope:', context, side);
     }
+
+    console.log('context.data:', context.data)
   }
 
   function renderCompleted () {
+    console.log('points', points.length, JSON.stringify(points))
     var ctx = fc(function () {
       ctx.translate(200, 200);
-      for (var j = 0; j < polygons.length; j++) {
-        drawPoly(ctx, polygons[j]);
-      }
+//      for (var j = 0; j < polygons.length; j++) {
+        // drawPoly(ctx, polygons[j]);
+        drawPoly(ctx, points);
+  //    }
 
       debug(ctx)
 

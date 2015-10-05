@@ -71,7 +71,7 @@ function clip (poly, cuttingPlane) {
 
   var lastPointSide;
   if (!poly || !poly[0]) return {left: undefined, right: undefined};
-
+  var trackedIntersections = [];
   for (var i = 0; i < poly.length; i++) {
     var lastX = poly[i][0];
     var lastY = poly[i][1];
@@ -84,10 +84,10 @@ function clip (poly, cuttingPlane) {
     // does the current line segment intersect the cuttingPlane?
     if ((lastPointSide !== 0) && (side !== 0)) {
       var intersection = segline(cuttingPlane[0], cuttingPlane[1], cuttingPlane[2], cuttingPlane[3], currentX, currentY, lastX, lastY);
-
       if (Array.isArray(intersection)) {
         left.push([intersection[0], intersection[1]]);
         right.push([intersection[0], intersection[1]]);
+        trackedIntersections.push(intersection);
       }
     }
 
@@ -109,7 +109,8 @@ function clip (poly, cuttingPlane) {
   return {
     left: left,
     right: right,
-    edges: [i, n]
+    edges: [i, n],
+    intersections: trackedIntersections
   }
 }
 
