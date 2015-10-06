@@ -300,10 +300,12 @@ module.exports = debung.debug(function createDebug() {
 
         // jump (j)
         case 74:
-          listening = false;
-          var newStage = prompt("enter stage to jump to", stage);
-          stage = newStage ? newStage : stage;
-          listening = true;
+          if (!e.metaKey && !e.controlKey) {
+            listening = false;
+            var newStage = prompt("enter stage to jump to", stage);
+            stage = newStage ? newStage : stage;
+            listening = true;
+          }
         break;
 
         // left arrow key
