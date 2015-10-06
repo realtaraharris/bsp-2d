@@ -40,9 +40,6 @@ module.exports = debung.debug(function createDebug() {
     if (obj) {
       ctx.save()
         ctx.translate(halfwidth, halfwidth);
-
-        label(ctx, i, obj.method, obj.result[0] - obj.call[0]);
-
         if (obj.render) {
           try {
             obj.render(ctx);
@@ -66,6 +63,8 @@ module.exports = debung.debug(function createDebug() {
             ctx.fillText(text, halfwidth-textWidth-20, -halfwidth + 20)
           }
         }
+
+        label(ctx, i, obj.method, obj.result[0] - obj.call[0]);
       ctx.restore();
     }
   }
