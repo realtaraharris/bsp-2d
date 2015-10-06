@@ -287,15 +287,31 @@ module.exports = debung.debug(function createDebug() {
 
     renderStage();
 
+    var listening = true;
     document.addEventListener('keydown', function(e) {
+      if (!listening) { return };
       var key = e.keyCode;
 
       switch (key) {
-        // left
+        // reset (r)
+        case 82:
+          stage = 0;
+        break;
+
+        // jump (j)
+        case 74:
+          listening = false;
+          var newStage = prompt("enter stage to jump to", stage);
+          stage = newStage ? newStage : stage;
+          listening = true;
+        break;
+
+        // left arrow key
         case 37:
           stage--;
         break;
 
+        // right arrow key
         case 39:
           stage++;
         break;
