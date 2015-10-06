@@ -40,9 +40,31 @@ module.exports = debung.debug(function createDebug() {
     if (obj) {
       ctx.save()
         ctx.translate(halfwidth, halfwidth);
-        obj.render && obj.render(ctx);
+
+        label(ctx, i, obj.method, obj.result[0] - obj.call[0]);
+
+        if (obj.render) {
+          try {
+            obj.render(ctx);
+          } catch (e) {
+            ctx.fillStyle = "red";
+            ctx.font = 'bold 16px sans-serif'
+            var text = 'render: ' + e.message;
+            var textWidth = ctx.measureText(e.message).width
+            ctx.fillText(text, halfwidth-textWidth-20, -halfwidth + 20)
+          }
+        }
+
         if (i === stage && obj.annotate) {
-          obj.annotate(ctx);
+          try {
+            obj.annotate(ctx);
+          } catch (e) {
+            ctx.fillStyle = "red";
+            ctx.font = 'bold 16px sans-serif'
+            var text = 'annotate: ' + e.message;
+            var textWidth = ctx.measureText(text).width
+            ctx.fillText(text, halfwidth-textWidth-20, -halfwidth + 20)
+          }
         }
       ctx.restore();
     }
@@ -59,10 +81,10 @@ module.exports = debung.debug(function createDebug() {
     ctx.lineTo(right.x, right.y);
   }
 
-  function label(ctx, method, timed) {
+  function label(ctx, currentStage, method, timed) {
     ctx.font = "12px monospace"
 
-    var text = 'method: ' + method + ' (' + (timed).toFixed(0) + 'μs)';
+    var text = currentStage + ': ' + method + ' (' + (timed).toFixed(0) + 'μs)';
     var textWidth = ctx.measureText(text).width;
     var x = -halfwidth + 10;
     var y = -halfwidth + 20;
@@ -132,18 +154,30 @@ module.exports = debung.debug(function createDebug() {
     stages = [];
 
     debung.flow(function(d) {
+
+
       var type = d[2];
       if (type === 'wrap') {
         stack.push(d);
       } else if (type === 'unwrap') {
+
+
         var method = d[3];
         var call = stack.pop();
         var args = call[4];
         var result = d[4];
 
+        function add(obj) {
+          obj.method = method;
+          obj.call = call;
+          obj.result = d;
+          stages.push(obj);
+        }
+
         switch (method) {
           case 'findSide':
-            stages.push({
+            add({
+
               render: function(ctx) {
                 ctx.beginPath()
                   ctx.moveTo(args[0], args[1]);
@@ -159,14 +193,12 @@ module.exports = debung.debug(function createDebug() {
                   ctx.arc(args[4], args[5], 3, 0, Math.PI*2, false);
                   ctx.fillStyle = 'white'
                   ctx.fill();
-
-                label(ctx, method, d[0] - call[0]);
               }
             })
           break;
 
           case 'segline':
-            stages.push({
+            add({
               render: function(ctx) {
                 drawPlane(ctx, args.slice(0, 4));
 
@@ -180,7 +212,6 @@ module.exports = debung.debug(function createDebug() {
                 ctx.strokeStyle = color
                 ctx.stroke();
 
-                label(ctx, method, d[0] - call[0]);
                 if (result) {
                   ctx.beginPath();
                     ctx.moveTo(result[0], result[1]);
@@ -217,7 +248,7 @@ module.exports = debung.debug(function createDebug() {
           break;
 
           case 'drawPoly':
-            stages.push({
+            add({
               render: function(ctx) {
                 var polygon = args[1];
 
@@ -234,14 +265,12 @@ module.exports = debung.debug(function createDebug() {
                 ctx.fillStyle = '#E0E0E0'
                 ctx.stroke();
                 ctx.fill();
-
-                label(ctx, method, d[0] - call[0]);
               }
             })
           break;
 
           case 'clip':
-            stages.push({
+            add({
               render: function(ctx) {
                 var polygon = args[0];
                 var plane = args[1];
@@ -282,7 +311,6 @@ module.exports = debung.debug(function createDebug() {
                 ctx.stroke()
 
                 drawPlane(ctx, plane)
-                label(ctx, method, d[0] - call[0]);
               }
             });
           break;
@@ -293,7 +321,6 @@ module.exports = debung.debug(function createDebug() {
         }
       }
     });
-
     renderStage();
 
     var listening = true;
