@@ -322,6 +322,9 @@ module.exports = debung.debug(function createDebug() {
           console.log(key);
         break;
       }
+
+      stage = Math.max(0, Math.min(stage, stages.length-1))
+
       window.localStorage.setItem('stage', stage);
       fullClear();
       renderStage();
