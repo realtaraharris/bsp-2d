@@ -36,12 +36,14 @@ module.exports = debung.debug(function createDebug() {
 
   fullClear();
 
-  function render(fn) {
-    if (fn) {
+  function render(obj, i) {
+    if (obj) {
       ctx.save()
-        fullClear(0.000001)
         ctx.translate(halfwidth, halfwidth);
-        fn(ctx);
+        obj.render && obj.render(ctx);
+        if (i === stage && obj.annotate) {
+          obj.annotate(ctx);
+        }
       ctx.restore();
     }
   }
@@ -117,7 +119,7 @@ module.exports = debung.debug(function createDebug() {
 
   function renderStage() {
     for (var i=0; i<=stage; i++) {
-      render(stages[i])
+      render(stages[i], i)
     }
   }
 
@@ -132,149 +134,152 @@ module.exports = debung.debug(function createDebug() {
       } else if (type === 'unwrap') {
         var method = d[3];
         var call = stack.pop();
+        var args = call[4];
+        var result = d[4];
 
         switch (method) {
           case 'findSide':
-            stages.push(function(ctx) {
-              var args = call[4];
+            stages.push({
+              render: function(ctx) {
+                ctx.beginPath()
+                  ctx.moveTo(args[0], args[1]);
+                  ctx.lineTo(args[2], args[3]);
+                  arrow(ctx, 10, args);
 
-              ctx.beginPath()
-                ctx.moveTo(args[0], args[1]);
-                ctx.lineTo(args[2], args[3]);
-                arrow(ctx, 10, args);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "black"
+                ctx.stroke();
 
-              ctx.lineWidth = 3;
-              ctx.strokeStyle = "black"
-              ctx.stroke();
+                ctx.beginPath();
+                  ctx.moveTo(args[4], args[5]);
+                  ctx.arc(args[4], args[5], 3, 0, Math.PI*2, false);
+                  ctx.fillStyle = 'white'
+                  ctx.fill();
 
-              ctx.beginPath();
-                ctx.moveTo(args[4], args[5]);
-                ctx.arc(args[4], args[5], 3, 0, Math.PI*2, false);
-                ctx.fillStyle = 'white'
-                ctx.fill();
-
-              label(ctx, method, d[0] - call[0]);
+                label(ctx, method, d[0] - call[0]);
+              }
             })
           break;
 
           case 'segline':
-            stages.push(function(ctx) {
-              var args = call[4];
-              var result = d[4];
+            stages.push({
+              render: function(ctx) {
+                drawPlane(ctx, args.slice(0, 4));
 
-              drawPlane(ctx, args.slice(0, 4));
+                var color = d[4] ? 'green' : 'red';
 
-              var color = d[4] ? 'green' : 'red';
+                ctx.beginPath()
+                  ctx.moveTo(args[4], args[5]);
+                  ctx.lineTo(args[6], args[7]);
 
-              ctx.beginPath()
-                ctx.moveTo(args[4], args[5]);
-                ctx.lineTo(args[6], args[7]);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = color
+                ctx.stroke();
 
-              ctx.lineWidth = 3;
-              ctx.strokeStyle = color
-              ctx.stroke();
+                label(ctx, method, d[0] - call[0]);
+                if (result) {
+                  ctx.beginPath();
+                    ctx.moveTo(result[0], result[1]);
+                    ctx.arc(result[0], result[1], 5, 0, Math.PI*2, false);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+              },
+              annotate: function(ctx) {
+                if (result) {
+                  ctx.font = '12px monospace';
+                  var text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  var textWidth = Math.ceil(ctx.measureText(text).width);
 
-              if (result) {
-                ctx.font = '12px monospace';
-                var text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
-                var textWidth = Math.ceil(ctx.measureText(text).width);
+                  var dir = (result[0] + 20 + textWidth) > halfwidth ? -1 : 1;
 
-                var dir = (result[0] + 20 + textWidth) > halfwidth ? -1 : 1;
+                  ctx.beginPath();
+                    ctx.lineWidth = 1
+                    ctx.moveTo(result[0] + dir * 6, result[1] - 6);
+                    ctx.lineTo(result[0] + dir * 20, result[1] - 20);
+                    ctx.lineTo(result[0] + dir * 20 + dir * textWidth, result[1] - 20);
+                    ctx.strokeStyle = 'white';
+                    ctx.stroke();
 
-                ctx.beginPath();
-                  ctx.lineWidth = 1
-                  ctx.moveTo(result[0] + dir * 6, result[1] - 6);
-                  ctx.lineTo(result[0] + dir * 20, result[1] - 20);
-                  ctx.lineTo(result[0] + dir * 20 + dir * textWidth, result[1] - 20);
-                  ctx.strokeStyle = 'white';
-                  ctx.stroke();
-
-
-
-                ctx.fillStyle = '#fff';
-                ctx.fillText(
-                  text,
-                  (dir < 0) ? result[0] - (20 + textWidth) : result[0] + dir * 20,
-                  result[1] - 25
-                );
-
-
-                ctx.beginPath();
-                  ctx.moveTo(result[0], result[1]);
-                  ctx.arc(result[0], result[1], 5, 0, Math.PI*2, false);
-                  ctx.fillStyle = color;
-                  ctx.fill();
+                  ctx.fillStyle = '#fff';
+                  ctx.fillText(
+                    text,
+                    (dir < 0) ? result[0] - (20 + textWidth) : result[0] + dir * 20,
+                    result[1] - 25
+                  );
+                }
               }
-
-              label(ctx, method, d[0] - call[0]);
             })
           break;
 
           case 'drawPoly':
-            stages.push(function(ctx) {
-              var polygon = call[4][1];
+            stages.push({
+              render: function(ctx) {
+                var polygon = args[1];
 
-              ctx.beginPath();
-                points(ctx, 1, polygon);
-                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                  points(ctx, 1, polygon);
+                  ctx.fillStyle = 'black';
+                  ctx.fill();
+
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                  poly(ctx, polygon);
+                ctx.closePath();
+                ctx.strokeStyle = "#666"
+                ctx.fillStyle = '#E0E0E0'
+                ctx.stroke();
                 ctx.fill();
 
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-                poly(ctx, polygon);
-              ctx.closePath();
-              ctx.strokeStyle = "#666"
-              ctx.fillStyle = '#E0E0E0'
-              ctx.stroke();
-              ctx.fill();
-
-              label(ctx, method, d[0] - call[0]);
+                label(ctx, method, d[0] - call[0]);
+              }
             })
           break;
 
           case 'clip':
-            stages.push(function(ctx) {
-              var polygon = call[4][0];
-              var plane = call[4][1];
+            stages.push({
+              render: function(ctx) {
+                var polygon = args[0];
+                var plane = args[1];
 
-              // render the results
-              var result = d[4];
-              var rleft = result.left;
-              var rright = result.right;
+                // render the results
+                var rleft = result.left;
+                var rright = result.right;
 
-              var lcenter = polygonCenterOfMass(rleft)
-              var rcenter = polygonCenterOfMass(rright)
+                var lcenter = polygonCenterOfMass(rleft)
+                var rcenter = polygonCenterOfMass(rright)
 
-              ctx.beginPath()
-                poly(ctx, rleft)
-                ctx.fillStyle = "#aaa";
-                ctx.fill()
+                ctx.beginPath()
+                  poly(ctx, rleft)
+                  ctx.fillStyle = "#aaa";
+                  ctx.fill()
 
-              ctx.beginPath()
-                poly(ctx, rright)
-                ctx.fillStyle = "#777";
-                ctx.fill()
+                ctx.beginPath()
+                  poly(ctx, rright)
+                  ctx.fillStyle = "#777";
+                  ctx.fill()
 
-              ctx.font = "bold 16px sans-serif"
-              ctx.fillStyle = 'black';
-              ctx.fillText('L', lcenter[0]|0, lcenter[1]|0);
-              ctx.fillText('R', rcenter[0]|0, rcenter[1]|0);
+                ctx.font = "bold 16px sans-serif"
+                ctx.fillStyle = 'black';
+                ctx.fillText('L', lcenter[0]|0, lcenter[1]|0);
+                ctx.fillText('R', rcenter[0]|0, rcenter[1]|0);
 
-              ctx.lineWidth = 3
+                ctx.lineWidth = 3
 
-              ctx.beginPath();
-                points(ctx, 3, polygon);
-                ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, .5)';
-                ctx.fill();
+                ctx.beginPath();
+                  points(ctx, 3, polygon);
+                  ctx.fillStyle = 'rgba(' + 1 + ', 0, 0, .5)';
+                  ctx.fill();
 
-              ctx.beginPath();
-                poly(ctx, polygon);
-              ctx.closePath();
-              ctx.strokeStyle = "black"
-              ctx.stroke()
+                ctx.beginPath();
+                  poly(ctx, polygon);
+                ctx.closePath();
+                ctx.strokeStyle = "black"
+                ctx.stroke()
 
-              drawPlane(ctx, plane)
-              label(ctx, method, d[0] - call[0]);
+                drawPlane(ctx, plane)
+                label(ctx, method, d[0] - call[0]);
+              }
             });
           break;
 
