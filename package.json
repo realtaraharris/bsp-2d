@@ -22,7 +22,7 @@
     "budo": "^5.1.0",
     "ctx-dashed-line": "^1.0.0",
     "ctx-render-points": "^1.0.0",
-    "ctx-render-polyline": "^1.0.1",
+    "ctx-render-polyline": "^1.0.2",
     "debungify": "git+https://github.com/tmpvar/debungify.git",
     "line2": "^0.2.1",
     "subdivide-arc": "^1.0.1",
