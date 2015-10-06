@@ -37,11 +37,13 @@ module.exports = debung.debug(function createDebug() {
   fullClear();
 
   function render(fn) {
-    ctx.save()
-      fullClear(0.000001)
-      ctx.translate(halfwidth, halfwidth);
-      fn(ctx);
-    ctx.restore();
+    if (fn) {
+      ctx.save()
+        fullClear(0.000001)
+        ctx.translate(halfwidth, halfwidth);
+        fn(ctx);
+      ctx.restore();
+    }
   }
 
   function arrow(ctx, size, line) {
