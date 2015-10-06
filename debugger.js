@@ -74,6 +74,10 @@ module.exports = debung.debug(function createDebug() {
   }
 
   function polygonCenterOfMass(poly) {
+    if (!poly) {
+      return;
+    }
+
     var center = [0, 0];
     for (var i=0; i<poly.length; i++) {
       center[0] += poly[i][0];
