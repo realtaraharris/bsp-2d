@@ -298,6 +298,11 @@ module.exports = debung.debug(function createDebug() {
           stage = 0;
         break;
 
+        // end (e)
+        case 69:
+          stage = stages.length-1;
+        break;
+
         // jump (j)
         case 74:
           if (!e.metaKey && !e.controlKey) {
