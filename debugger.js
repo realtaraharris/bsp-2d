@@ -110,7 +110,7 @@ module.exports = debung.debug(function createDebug() {
     return center;
   }
 
-  function drawPlane(ctx, plane) {
+  function drawPlane(ctx, plane, color, lineWidth) {
     var line = line2(
       plane[0],
       plane[1],
@@ -137,8 +137,8 @@ module.exports = debung.debug(function createDebug() {
 
     ctx.beginPath()
       dashedLine(ctx, start, end, 5)
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "black"
+      ctx.lineWidth = lineWidth || 3;
+      ctx.strokeStyle = color || "black"
       ctx.stroke()
   }
 
@@ -211,6 +211,46 @@ module.exports = debung.debug(function createDebug() {
                 ctx.strokeStyle = color
                 ctx.stroke();
 
+                if (result) {
+                  ctx.beginPath();
+                    ctx.moveTo(result[0], result[1]);
+                    ctx.arc(result[0], result[1], 5, 0, Math.PI*2, false);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+              },
+              annotate: function(ctx) {
+                if (result) {
+                  ctx.font = '12px monospace';
+                  var text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  var textWidth = Math.ceil(ctx.measureText(text).width);
+
+                  var dir = (result[0] + 20 + textWidth) > halfwidth ? -1 : 1;
+
+                  ctx.beginPath();
+                    ctx.lineWidth = 1
+                    ctx.moveTo(result[0] + dir * 6, result[1] - 6);
+                    ctx.lineTo(result[0] + dir * 20, result[1] - 20);
+                    ctx.lineTo(result[0] + dir * 20 + dir * textWidth, result[1] - 20);
+                    ctx.strokeStyle = 'white';
+                    ctx.stroke();
+
+                  ctx.fillStyle = '#fff';
+                  ctx.fillText(
+                    text,
+                    (dir < 0) ? result[0] - (20 + textWidth) : result[0] + dir * 20,
+                    result[1] - 25
+                  );
+                }
+              }
+            })
+          break;
+
+          case 'BinaryTreeNode#cut':
+
+            add({
+              render: function(ctx) {
+                drawPlane(ctx, args[0], 'red', 4);
                 if (result) {
                   ctx.beginPath();
                     ctx.moveTo(result[0], result[1]);
