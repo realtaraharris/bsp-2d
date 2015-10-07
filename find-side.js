@@ -47,8 +47,6 @@ function findSide (ax, ay, bx, by, cx, cy) {
 
 // http://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
 function nearlyEqual (a, b, epsilon) {
-  var absA = Math.abs(a);
-  var absB = Math.abs(b);
   var diff = Math.abs(a - b);
 
   if (a === b) {
@@ -58,7 +56,7 @@ function nearlyEqual (a, b, epsilon) {
     return diff < epsilon;
   }
   else {
-    return diff / (absA + absB) < epsilon;
+    return diff / (Math.abs(a) + Math.abs(b)) < epsilon;
   }
 }
 
