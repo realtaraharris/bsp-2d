@@ -186,7 +186,8 @@ module.exports = debung.debug(function createDebug() {
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = "black"
                 ctx.stroke();
-
+              },
+              annotate : function(ctx) {
                 ctx.beginPath();
                   ctx.moveTo(args[4], args[5]);
                   ctx.arc(args[4], args[5], 3, 0, Math.PI*2, false);
