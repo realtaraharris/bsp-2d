@@ -47,16 +47,15 @@ function findSide (ax, ay, bx, by, cx, cy) {
 
 // http://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
 function nearlyEqual (a, b, epsilon) {
-  var diff = Math.abs(a - b);
-
   if (a === b) {
     return true;
   }
-  else if (a === 0 || b === 0) {
-    return diff < epsilon;
+
+  if (a === 0 || b === 0) {
+    return Math.abs(a - b) < epsilon;
   }
   else {
-    return diff / (Math.abs(a) + Math.abs(b)) < epsilon;
+    return Math.abs(a - b) / (Math.abs(a) + Math.abs(b)) < epsilon;
   }
 }
 
