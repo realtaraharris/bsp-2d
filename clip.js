@@ -6,7 +6,7 @@ var EPS = 0.000001;
 
 // first four arguments are the line (aka plane): x1, y1, x2, y2
 // the segment is defined by the last four: x3, y3, x4, y4
-function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
+function seg (x1, y1, x2, y2, x3, y3, x4, y4, segmentTest) {
   var denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
 
   // never return NaN
@@ -34,14 +34,36 @@ function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
   var mua = numera / denom;
   var mub = numerb / denom;
 
-  if ((mua < 0) && (mua > 1) || (mub < 0) || (mub > 1)) {
-    return;
+  if (!segmentTest(mua, mub)) {
+    return [
+      x1 + (mua) * (x2 - x1),
+      y1 + (mua) * (y2 - y1)
+    ]
   }
+}
 
-  return [
-    x1 + (mua) * (x2 - x1),
-    y1 + (mua) * (y2 - y1)
-  ]
+function segline (x1, y1, x2, y2, x3, y3, x4, y4) {
+  return seg(x1, y1, x2, y2, x3, y3, x4, y4, function (mua, mub) {
+    // does the line intersect the segment?
+    if ((mua < 0) && (mua > 1) || (mub < 0) || (mub > 1)) {
+      return true;
+    }
+  });
+}
+
+function lineline (x1, y1, x2, y2, x3, y3, x4, y4) {
+  return seg(x1, y1, x2, y2, x3, y3, x4, y4, function () {
+    return true; // if we're in this callback we know we have two lines that aren't parallel
+  });
+}
+
+function segseg (x1, y1, x2, y2, x3, y3, x4, y4) {
+  return seg(x1, y1, x2, y2, x3, y3, x4, y4, function (mua, mub) {
+    // do the two segments intersect?
+    if ((mua < 0) || (mua > 1) || (mub < 0) || (mub > 1)) {
+      return true;
+    }
+  });
 }
 
 function nick (poly, nickingPlanes) {
@@ -115,3 +137,6 @@ function clip (poly, cuttingPlane) {
 
 exports.nick = nick;
 exports.clip = clip;
+exports.segline = segline;
+exports.lineline = lineline;
+exports.segseg = segseg;
