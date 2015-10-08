@@ -6,6 +6,7 @@ module.exports = debung.debug(function createDebug() {
   var points = require('ctx-render-points');
   var line2 = require('line2');
   var vec2 = require('vec2');
+  var aabb = require('2d-bounds');
 
   var width = 500;
   var overlay = document.createElement('div')
@@ -24,7 +25,8 @@ module.exports = debung.debug(function createDebug() {
 
   var ctx = c.getContext('2d');
   var stages = [];
-  var stage = window.localStorage.getItem('stage') || 0;
+  var nodes = {};
+  var stage = parseInt(window.localStorage.getItem('stage') || 0, 10);
 
   var stack = [];
   var halfwidth = (width/2)|0;
@@ -44,6 +46,7 @@ module.exports = debung.debug(function createDebug() {
           try {
             obj.render(ctx);
           } catch (e) {
+            console.error(e.stack);
             ctx.fillStyle = "red";
             ctx.font = 'bold 16px sans-serif'
             var text = 'render: ' + e.message;
@@ -56,6 +59,7 @@ module.exports = debung.debug(function createDebug() {
           try {
             obj.annotate(ctx);
           } catch (e) {
+            console.error(e.stack);
             ctx.fillStyle = "red";
             ctx.font = 'bold 16px sans-serif'
             var text = 'annotate: ' + e.message;
@@ -143,8 +147,9 @@ module.exports = debung.debug(function createDebug() {
   }
 
   function renderStage() {
+    nodes = {};
     for (var i=0; i<=stage; i++) {
-      render(stages[i], i)
+      stages[i] && render(stages[i], i)
     }
   }
 
@@ -153,8 +158,6 @@ module.exports = debung.debug(function createDebug() {
     stages = [];
 
     debung.flow(function(d) {
-
-
       var type = d[2];
       if (type === 'wrap') {
         stack.push(d);
@@ -224,7 +227,11 @@ module.exports = debung.debug(function createDebug() {
               annotate: function(ctx) {
                 if (result) {
                   ctx.font = '12px monospace';
-                  var text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  var text = 'collinear';
+                  if (Array.isArray(result)) {
+                    text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  }
+
                   var textWidth = Math.ceil(ctx.measureText(text).width);
 
                   var dir = (result[0] + 20 + textWidth) > halfwidth ? -1 : 1;
@@ -270,6 +277,99 @@ module.exports = debung.debug(function createDebug() {
             })
           break;
 
+          case 'BinaryTreeNode':
+          console.log('here', context.id)
+            add({
+              render: function() {
+                // Pack the nodes list with only the tree nodes we've found thus far.
+                var insert = {
+                  geometry: context.data.geometry,
+                  aabb: aabb(context.data.geometry),
+                };
+
+                if (!context.isRoot()) {
+                  var parent = nodes[context.parent.id];
+
+                  var dir = context.side === 'R' ? 1 : -1;
+                  var pdx = parent.aabb[2] - parent.aabb[0];
+                  var pdy = parent.aabb[3] - parent.aabb[1];
+
+                  var dx = insert.aabb[2] - insert.aabb[0];
+                  var dy = insert.aabb[3] - insert.aabb[1];
+                  var dist = (Math.sqrt(dx*dx + dy*dy) + Math.sqrt(pdx*pdx + pdy*pdy)) * .75
+
+                  insert.position = [
+                    parent.position[0] + dir*dist,
+                    parent.position[1] + dist
+                  ];
+
+                  insert.color = dir > 0 ? 'green' : 'red';
+                } else {
+                  insert.color = "black";
+                  insert.position = [0, 0];
+                }
+
+                insert.center = [
+                  (insert.aabb[2] + insert.aabb[0]) / 2 - insert.aabb[0],
+                  (insert.aabb[3] + insert.aabb[1]) / 2 - insert.aabb[1]
+                ];
+
+                nodes[context.id] = insert;
+              },
+              annotate: function(ctx) {
+                var root = context;
+                while (root.parent) {
+                  root = root.parent;
+                }
+
+                ctx.fillStyle = "rgba(255, 127, 50, 1)"
+                ctx.fillRect(-halfwidth, -halfwidth, width, width);
+
+                var toFill = [];
+                ctx.save();
+                  ctx.translate(0, -halfwidth+50);
+                  ctx.scale(.1, .1);
+                  root.traverse(function(node) {
+                    var parent = node.parent ? nodes[node.parent.id] : null;
+
+                    var meta = nodes[node.id];
+                    toFill.push(meta);
+                    if (meta && parent) {
+                      ctx.beginPath()
+                        ctx.moveTo(0, 0);
+                        ctx.moveTo(meta.position[0] + meta.center[0], meta.position[1] + meta.center[1]);
+                        ctx.lineTo(parent.position[0] + parent.center[0], parent.position[1] + parent.center[1]);
+
+                        ctx.lineWidth = 10;
+                        ctx.strokeStyle = "grey";
+                        ctx.stroke();
+                    }
+                  }, 0)
+
+                  // Render all of the polygons last aka make it pop
+                  toFill.filter(Boolean).forEach(function(node) {
+                    ctx.save()
+                      ctx.translate(
+                        node.position[0] - node.aabb[0],
+                        node.position[1] - node.aabb[1]
+                      );
+
+                      ctx.beginPath()
+                        poly(ctx, node.geometry)
+                      ctx.closePath();
+                      ctx.fillStyle= node.color;//'green';//"rgba(0, 255, 0, .25)";
+                      ctx.lineWidth = 5;
+                      ctx.strokeStyle = 'black';
+                      ctx.fill();
+                      ctx.stroke();
+                    ctx.restore();
+                  })
+
+                ctx.restore();
+              }
+            })
+          break;
+
           case 'BinaryTreeNode#cut':
 
             add({
@@ -279,14 +379,17 @@ module.exports = debung.debug(function createDebug() {
                   ctx.beginPath();
                     ctx.moveTo(result[0], result[1]);
                     ctx.arc(result[0], result[1], 5, 0, Math.PI*2, false);
-                    ctx.fillStyle = color;
+                    ctx.fillStyle = 'red';
                     ctx.fill();
                 }
               },
               annotate: function(ctx) {
                 if (result) {
                   ctx.font = '12px monospace';
-                  var text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  var text = 'collinear';
+                  if (Array.isArray(result)) {
+                    text = (result[0]).toFixed(2) + ',' + (result[1]).toFixed(2);
+                  }
                   var textWidth = Math.ceil(ctx.measureText(text).width);
 
                   var dir = (result[0] + 20 + textWidth) > halfwidth ? -1 : 1;
@@ -384,7 +487,6 @@ module.exports = debung.debug(function createDebug() {
         }
       }
     });
-    renderStage();
 
     var listening = true;
     document.addEventListener('keydown', function(e) {
@@ -433,6 +535,8 @@ module.exports = debung.debug(function createDebug() {
       fullClear();
       renderStage();
     })
+
+    renderStage();
   }
 });
 
