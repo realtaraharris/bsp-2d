@@ -164,6 +164,7 @@ module.exports = debung.debug(function createDebug() {
         var method = d[3];
         var call = stack.pop();
         var args = call[4];
+        var context = call[5] || null;
         var result = d[4];
 
         function add(obj) {
@@ -243,6 +244,28 @@ module.exports = debung.debug(function createDebug() {
                     result[1] - 25
                   );
                 }
+              }
+            })
+          break;
+
+          case 'BinaryTreeNode#merge':
+            add({
+              annotate: function(ctx) {
+                ctx.beginPath();
+                  poly(ctx, context.data.geometry);
+                ctx.closePath();
+                ctx.fillStyle = "rgba(0, 255, 0, .75)";
+                ctx.strokeStyle = "green"
+                ctx.fill()
+                ctx.stroke();
+
+                ctx.beginPath();
+                  poly(ctx, args[0].data.geometry);
+                ctx.closePath();
+                ctx.fillStyle = "rgba(255, 0, 0, .75)"
+                ctx.strokeStyle = "red"
+                ctx.fill();
+                ctx.stroke();
               }
             })
           break;
