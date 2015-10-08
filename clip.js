@@ -9,15 +9,14 @@ var EPS = 0.000001;
 function seg (x1, y1, x2, y2, x3, y3, x4, y4, segmentTest) {
   var denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
 
-  // never return NaN
-  if ((denom === 0) || isNaN(denom)) {
-    return;
+  if ((denom === 0) || Math.abs(denom) < EPS || isNaN(denom)) {
+    return true; // lines are parallel
   }
 
   var numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
   var numerb = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
 
-  // are the line coincident?
+  // if there is an intersection *inside* the segments provided in the input, return that
   if (Math.abs(numera) < EPS && Math.abs(numerb) < EPS && Math.abs(denom) < EPS) {
     return [
       (x1 + x2) / 2,
@@ -25,21 +24,19 @@ function seg (x1, y1, x2, y2, x3, y3, x4, y4, segmentTest) {
     ];
   }
 
-  // are the line parallel?
-  if (Math.abs(denom) < EPS) {
-    return; // no intersection
-  }
-
-  // is the intersection along the the segment?
   var mua = numera / denom;
   var mub = numerb / denom;
 
+  // depending on the callback provided, perform line-line, line-segment, segment-segment intersection
   if (!segmentTest(mua, mub)) {
     return [
       x1 + (mua) * (x2 - x1),
       y1 + (mua) * (y2 - y1)
     ]
   }
+
+  // if we got down here, there is absolutely no intersection (depending on the callback immediately above)
+  return false;
 }
 
 function segline (x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -53,7 +50,7 @@ function segline (x1, y1, x2, y2, x3, y3, x4, y4) {
 
 function lineline (x1, y1, x2, y2, x3, y3, x4, y4) {
   return seg(x1, y1, x2, y2, x3, y3, x4, y4, function () {
-    return true; // if we're in this callback we know we have two lines that aren't parallel
+    return false; // if we're in this callback we know we have two lines that aren't parallel
   });
 }
 

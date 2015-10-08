@@ -1,5 +1,6 @@
 var tape = require('tape');
 var clipper = require('./clip').clip;
+var lineline = require('./clip').lineline;
 
 tape('check convex polygon clipper', function (t) {
   t.deepEquals(
@@ -73,6 +74,30 @@ tape('check convex polygon clipper', function (t) {
     },
     'clipped through vertical line (defined by interior points)'
   );
+
+  t.equals(lineline(0,0,1,1, 1,0,2,1), true, '45 degree lines pointing northeast');
+  t.equals(lineline(0,0,0,1, 1,0,1,1), true, 'vertical lines check out');
+  t.equals(lineline(0,0,1,0, 0,1,1,1), true, 'horizontal lines');
+  t.deepEquals(lineline(0,0,0,1, -0.5,0.5,0.5,0.5), [ 0, 0.5 ], 'cross with center at (0,0.5)');
+
+  t.deepEquals(lineline(0, 100, 100, 100, 25, 50, 50, 25), [ -25, 100 ], '');
+  t.deepEquals(lineline(100, 100, 100, 0, 25, 50, 50, 25), [ 100, -25 ], '');
+  t.deepEquals(lineline(100, 0, 0, 0, 25, 50, 50, 25), [ 75, 0 ], '');
+
+  //     .cut([0,0, 0,100], 'L')
+  //     .cut([0,100, 100,100], 'L')
+  //     .cut([100,100, 100,0], 'L')
+  //     .cut([100,0, 0,0], 'L')
+  // }
+
+  // function diamond () {
+  //   return createRoot()
+  //     .cut([50,75, 25,50], 'R')
+  //     .cut([25,50, 50,25], 'R')
+  //     .cut([50,25, 75,50], 'R')
+  //     .cut([75,50, 50,75], 'R');
+
+
 
   t.end();
 });

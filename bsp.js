@@ -3,28 +3,62 @@ var btnode = require('./binarytreenode');
 var debug = require('./debugger');
 var arc = require('subdivide-arc');
 
-var root = new btnode(
-  {
-    plane: [],
-    geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
-  },
-  0, this, '-'
-);
+// var root = new btnode(
+//   {
+//     plane: [],
+//     geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
+//   },
+//   0, undefined, '-'
+// );
 
-//circle(root, 60);
-diamondHole(root);
+//circle(root, 20);
+// diamondHole(root);
 
-function diamondHole (tree) {
-  tree
-    .cut([0,0, 0,100], 'L')
-    .cut([0,100, 100,100], 'L')
-    .cut([100,100, 100,0], 'L')
-    .cut([100,0, 0,0], 'L')
-    .cut([50,75, 25,50], 'R')
-    .cut([25,50, 50,25], 'R')
-    .cut([50,25, 75,50], 'R')
-    .cut([75,50, 50,75], 'R');
-}
+  function createRoot() {
+    return new btnode(
+      {
+        plane: [],
+        geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
+      },
+      0, undefined, '-'
+    );
+  }
+
+  function square () {
+    var tmproot = createRoot()
+    tmproot
+      .cut([0,0, 0,100], 'L')
+      .cut([0,100, 100,100], 'L')
+      .cut([100,100, 100,0], 'L')
+      .cut([100,0, 0,0], 'L')
+    return tmproot;
+  }
+
+  function diamond () {
+    var tmproot = createRoot();
+    tmproot
+      .cut([50,75, 25,50], 'R')
+      .cut([25,50, 50,25], 'R')
+      .cut([50,25, 75,50], 'R')
+      .cut([75,50, 50,75], 'R');
+    return tmproot;
+  }
+
+  var root = square().merge(diamond())
+  console.log('ROOT:', root);
+
+
+// function diamondHole (tree) {
+//   tree
+//     .cut([0,0, 0,100], 'L')
+//     .cut([0,100, 100,100], 'L')
+//     .cut([100,100, 100,0], 'L')
+//     .cut([100,0, 0,0], 'L')
+//     .cut([50,75, 25,50], 'R')
+//     .cut([25,50, 50,25], 'R')
+//     .cut([50,25, 75,50], 'R')
+//     .cut([75,50, 50,75], 'R');
+// }
 
 function circle (tree, count) {
   var arcpoints = arc(50, 50, 90, 0, Math.PI*2, count)
@@ -41,7 +75,7 @@ function circle (tree, count) {
   }
 }
 
-render('L'); // try 'L', 'R', or '-'
+render('-'); // try 'L', 'R', or '-'
 
 function drawPoly (ctx, polygon) {
   ctx.moveTo(polygon[0][0], polygon[0][1]);
@@ -72,7 +106,7 @@ function drawPoly (ctx, polygon) {
 function render (side) {
   var polygons = [];
 
-  function renderIterator (context) {
+  function renderIterator (context) { // TODO: rename `context` -> `node`
     var sibling;
     if (context.side === 'L') {
       sibling = context.parent.rightChild;
@@ -95,15 +129,15 @@ function render (side) {
       if (sibling) {
         var cedges = context.data.edges;
         var redges = sibling.data.edges;
-        console.log('cedges:', cedges);
-        console.log('redges:', redges);
-        console.log('plane:', sibling.data.plane);
+        // console.log('cedges:', cedges);
+        // console.log('redges:', redges);
+        // console.log('plane:', sibling.data.plane);
       }
 
       polygons.push(context.data.geometry);
     }
     else {
-      console.log('nope:', context, side);
+//      console.log('nope:', context, side);
     }
   }
 
