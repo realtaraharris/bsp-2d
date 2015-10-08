@@ -20,7 +20,7 @@ var arc = require('subdivide-arc');
         plane: [],
         geometry: [[-100, 200], [-100, -100], [200, -100], [200, 200]]
       },
-      0, undefined, '-'
+      undefined, undefined, '-'
     );
   }
 

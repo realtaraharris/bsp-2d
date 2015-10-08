@@ -19,6 +19,7 @@
     "pslg-to-poly": "^1.0.0"
   },
   "devDependencies": {
+    "2d-bounds": "^1.0.0",
     "budo": "^5.1.0",
     "ctx-dashed-line": "^1.0.0",
     "ctx-render-points": "^1.0.0",
