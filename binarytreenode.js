@@ -168,6 +168,16 @@ BinaryTreeNode.prototype.isLeaf = function () {
   return null === this.leftChild && null === this.rightChild;
 };
 
+BinaryTreeNode.prototype.print = function() {
+  this.traverse(function (node, depth) {
+    var a = ''
+    for (var i = 0; i<depth; i++) {
+      a+= '  |';
+    }
+    console.log(a + '-', node.id)
+  }, 0)
+}
+
 BinaryTreeNode.prototype.traverse = function (renderIterator, currentDepth, branch, renderCompleted) {
   renderIterator(this, currentDepth, branch);
 

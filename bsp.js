@@ -11,8 +11,9 @@ var arc = require('subdivide-arc');
 //   0, undefined, '-'
 // );
 
-//circle(root, 20);
-// diamondHole(root);
+var root = createRoot();
+//circle(root, 10);
+ diamondHole(root);
 
   function createRoot() {
     return new btnode(
@@ -44,21 +45,22 @@ var arc = require('subdivide-arc');
     return tmproot;
   }
 
-  var root = square().merge(diamond())
-  console.log('ROOT:', root);
+  // var root = square().merge(diamond())
+  // console.log('ROOT:', root);
 
+root.print();
 
-// function diamondHole (tree) {
-//   tree
-//     .cut([0,0, 0,100], 'L')
-//     .cut([0,100, 100,100], 'L')
-//     .cut([100,100, 100,0], 'L')
-//     .cut([100,0, 0,0], 'L')
-//     .cut([50,75, 25,50], 'R')
-//     .cut([25,50, 50,25], 'R')
-//     .cut([50,25, 75,50], 'R')
-//     .cut([75,50, 50,75], 'R');
-// }
+function diamondHole (tree) {
+  tree
+    .cut([0,0, 0,100], 'L')
+    .cut([0,100, 100,100], 'L')
+    .cut([100,100, 100,0], 'L')
+    .cut([100,0, 0,0], 'L')
+    .cut([50,75, 25,50], 'R')
+    .cut([25,50, 50,25], 'R')
+    .cut([50,25, 75,50], 'R')
+    .cut([75,50, 50,75], 'R');
+}
 
 function circle (tree, count) {
   var arcpoints = arc(50, 50, 90, 0, Math.PI*2, count)
