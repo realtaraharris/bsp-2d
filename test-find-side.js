@@ -43,5 +43,30 @@ tape('check line side finder', function (t) {
   t.equals(findSide(0,0, 2,0, 1,0), 0, "3");
   t.equals(findSide(1, -2, 0, 0, -1, 2), 0, "4");
 
+  t.equals(findSide(0,0, 1,0, Infinity, Infinity), 1, "horizontal line vs. highest, rightest you can go"); // -1 = right
+  t.equals(findSide(0,0, 1,0, -Infinity, Infinity), 1, "horizontal line vs. highest, leftest you can go"); // 1 = left
+  t.equals(findSide(0,0, 1,0, -Infinity, -Infinity), -1, "horizontal line vs. lowest, leftest you can go");
+  t.equals(findSide(0,0, 1,0, Infinity, -Infinity), -1, "horizontal line vs. lowest, rightest you can go");
+
+  t.equals(findSide(0,0, 0,1, Infinity, Infinity), -1, "vertical line vs. highest, rightest you can go");
+  t.equals(findSide(0,0, 0,1, -Infinity, Infinity), 1, "vertical line vs. highest, leftest you can go");
+  t.equals(findSide(0,0, 0,1, -Infinity, -Infinity), 1, "vertical line vs. lowest, leftest you can go");
+  t.equals(findSide(0,0, 0,1, Infinity, -Infinity), -1, "vertical line vs. lowest, rightest you can go");
+
+  t.equals(findSide(0,0, 1,1, Infinity, Infinity), 0, "45 degree line vs. highest, rightest you can go");
+  t.equals(findSide(0,0, 1,1, -Infinity, Infinity), 1, "45 degree line vs. highest, leftest you can go");
+  t.equals(findSide(0,0, 1,1, -Infinity, -Infinity), 0, "45 degree line vs. lowest, leftest you can go");
+  t.equals(findSide(0,0, 1,1, Infinity, -Infinity), -1, "45 degree line vs. lowest, rightest you can go");
+
+  t.equals(findSide(0,0, -1,-1, Infinity, Infinity), 0, "225 degree line vs. highest, rightest you can go");
+  t.equals(findSide(0,0, -1,-1, -Infinity, Infinity), -1, "225 degree line vs. highest, leftest you can go");
+  t.equals(findSide(0,0, -1,-1, -Infinity, -Infinity), 0, "225 degree line vs. lowest, leftest you can go");
+  t.equals(findSide(0,0, -1,-1, Infinity, -Infinity), 1, "225 degree line vs. lowest, rightest you can go");
+
+  t.equals(findSide(0,0, -258,149, Infinity, Infinity), -1, "~150 degree line vs. highest, rightest you can go");
+  t.equals(findSide(0,0, -258,149, -Infinity, Infinity), 0, "~150 degree line vs. highest, leftest you can go");
+  t.equals(findSide(0,0, -258,149, -Infinity, -Infinity), 1, "~150 degree line vs. lowest, leftest you can go");
+  t.equals(findSide(0,0, -258,149, Infinity, -Infinity), 0, "~150 degree line vs. lowest, rightest you can go");
+
   t.end();
 });
